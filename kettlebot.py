@@ -20,15 +20,28 @@ from twisted.internet import reactor
 
 from kettlefish import translate_remyspeak
 
+from datetime import datetime
+
 class KettleBot(IRCClient):
     bot_name = "kettlefish"
     channel = "#rit-foss"
     versionNum = 1
     sourceURL = "http://github.com/oddshocks/kettlefish"
     lineRate = 1
+    timeout = 300
+    on_hold = None
+
+    def canITalkNow(self, channel):
+        """Reset the on-hold if its greater than self.timeout seconds"""
+        _n = datetime.now()
+        if self.on_hold and (_n-self.on_hold).seconds >= self.timeout:
+            self.on_hold = None
+            self.msg(channel, "HAI GUYS, WHATS GOING ON HERE.")
+
+        return self.on_hold is None
 
     def signedOn(self):
-        """Called when bot has succesfully signed on to server."""
+        """Called when bot has successfully signed on to server."""
         self.join(self.factory.channel)
         self.factory.add_bot(self)
 
@@ -42,10 +55,18 @@ class KettleBot(IRCClient):
 
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
+        if not self.canITalkNow(channel): return # I got told to stop
+
         user = user.split('!', 1)[0]
 
         if msg.strip() == 'kettlefish--' and channel != self.nickname:
             self.msg(channel, '%s--' % user)
+            return
+
+        if msg.strip() == 'kettlefish stop' and channel != self.nickname:
+            # Shut up for like 5 minutes
+            self.on_hold = datetime.now()
+            self.msg(channel, "brb, i'm going to go get some coffee.")
             return
 
         if user == 'decause':
