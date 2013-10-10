@@ -74,6 +74,7 @@ REMYSPEAK.update({
     "(ob|ab)sanity": "absurd insanity",
 })
 
+
 def translate_remyspeak(text):
     cap_map = [str.lower, str.capitalize, str.upper]
     # figure out casing of input

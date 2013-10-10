@@ -22,6 +22,7 @@ from kettlefish import translate_remyspeak
 
 from datetime import datetime
 
+
 class KettleBot(IRCClient):
     bot_name = "kettlefish"
     channel = "#rit-foss"
@@ -55,7 +56,8 @@ class KettleBot(IRCClient):
 
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
-        if not self.canITalkNow(channel): return # I got told to stop
+        if not self.canITalkNow(channel):
+            return  # I got told to stop
 
         user = user.split('!', 1)[0]
 
@@ -74,7 +76,7 @@ class KettleBot(IRCClient):
             display = re.sub(r'(\+\+)|(--)', '', translated)
             if not msg.lower() == translated.lower():
                 self.msg(channel, 'What {} means is: {}'.format(
-                                    user, display))
+                         user, display))
 
         if channel == self.nickname:
             self.msg(user, translate_remyspeak(msg))
